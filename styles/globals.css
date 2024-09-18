@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: 'Ethnocentric';
+  src: url('/fonts/ethnocentric.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Megrim';
+  src: url('/fonts/Megrim.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}
+
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  background-color: #9d4edd;
+  border-radius: 5px;
+  cursor: pointer;
+  }
+
+  .css-lc42l8-MuiInputBase-input-MuiOutlinedInput-input{
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
