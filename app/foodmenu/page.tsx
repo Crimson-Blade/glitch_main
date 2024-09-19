@@ -1,6 +1,6 @@
 // app/user/page.tsx
 
-import Food from '../components/FoodMenu';
+import Food from "../../components/FoodMenu";
 
 const FoodMenu = () => {
   return <Food />;
