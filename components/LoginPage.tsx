@@ -49,7 +49,7 @@ const Home = () => {
                   <PersonOutlinedIcon className="absolute top-3 right-3 text-purple-500" />
                   <label
                     htmlFor="name"
-                    className="absolute top-4 left-3 text-white transition-all duration-300 transform -translate-y-5 scale-75 origin-top-left peer-placeholder-shown:top-4 peer-placeholder-shown:left-3 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-0 peer-focus:-translate-y-5 peer-focus:scale-75 peer-focus:text-purple-500 font-subhead text-xl"
+                    className="absolute top-4 left-3 text-white transition-all duration-300 transform -translate-y-5 scale-75 origin-top-left peer-placeholder-shown:top-4 peer-placeholder-shown:left-3 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-0 peer-focus:-translate-y-5 peer-focus:scale-75 peer-focus:text-purple-500 font-light text-xl"
                   >
                     Name
                   </label>
@@ -67,7 +67,7 @@ const Home = () => {
                   <PhoneOutlinedIcon className="absolute top-3 right-3 text-purple-500" />
                   <label
                     htmlFor="phone"
-                    className="absolute top-4 left-3 text-white transition-all duration-300 transform -translate-y-5 scale-75 origin-top-left peer-placeholder-shown:top-4 peer-placeholder-shown:left-3 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-0 peer-focus:-translate-y-5 peer-focus:scale-75 peer-focus:text-purple-500 font-subhead text-xl"
+                    className="absolute top-4 left-3 text-white transition-all duration-300 transform -translate-y-5 scale-75 origin-top-left peer-placeholder-shown:top-4 peer-placeholder-shown:left-3 peer-placeholder-shown:scale-100 peer-placeholder-shown:-translate-y-0 peer-focus:-translate-y-5 peer-focus:scale-75 peer-focus:text-purple-500 font-light text-xl"
                   >
                     Phone Number
                   </label>
@@ -86,7 +86,7 @@ const Home = () => {
                   />
                   <label
                     htmlFor="entry-time"
-                    className="absolute top-4 left-3 text-white transition-all duration-300 transform -translate-y-5 scale-75 origin-top-left peer-placeholder-shown:hidden peer-focus:-translate-y-5 peer-focus:scale-75 peer-focus:text-purple-500 font-subhead text-xl"
+                    className="absolute top-4 left-3 text-white transition-all duration-300 transform -translate-y-5 scale-75 origin-top-left peer-placeholder-shown:hidden peer-focus:-translate-y-5 peer-focus:scale-75 peer-focus:text-purple-500 font-light text-xl"
                   >
                     Entry Time
                   </label>

@@ -54,11 +54,11 @@ const UserProfile: React.FC = () => {
         <div className=" bg-opacity-20 backdrop-blur-md rounded-lg p-6 shadow-lg w-full max-w-4xl border border-purple-400 mt-10">
           <h2 className="text-3xl mb-5 font-heading text-blue-300 ml-16">User Details</h2>
           <div className="grid grid-cols-2 gap-2 text-white text-2xl mb-4 ml-16">
-            <span className='font-subhead text-2xl mb-2'>Name:</span>
+            <span className='font-light text-2xl mb-2'>Name:</span>
             <span>Adam</span>
-            <span className='font-subhead text-2xl mb-2'>Phone No:</span>
+            <span className='font-light text-2xl mb-2'>Phone No:</span>
             <span>9843453543</span>
-            <span className='font-subhead text-2xl'>Entry Time:</span>
+            <span className='font-light text-2xl'>Entry Time:</span>
             <span>12-2-2024 14:20</span>
           </div>
         </div>
@@ -196,7 +196,7 @@ const UserProfile: React.FC = () => {
             </tbody>
           </table>
           <div className="mt-4">
-            <p className="text-white text-2xl font-subhead text-right mr-2">Total Cost: <span className="font-bold font-sans">{totalCost}</span></p>
+            <p className="text-white text-2xl font-light text-right mr-2">Total Cost: <span className="font-bold font-sans">{totalCost}</span></p>
             <div className="mt-2 flex mb-10">
               <label className="text-white text-xl font-bold mt-2 mr-6">Discount:</label>
               <div className="flex space-x-10 mt-2">
@@ -205,7 +205,7 @@ const UserProfile: React.FC = () => {
                 <button onClick={() => setDiscount(15)} className="bg-purple-600 text-white px-5 py-1 rounded">15%</button>
               </div>
             </div>
-              <p className="text-white mt-2 text-3xl font-subhead">Final Bill: <span className="font-bold font-sans ml-5">{finalCost.toFixed(2)}</span></p>
+              <p className="text-white mt-2 text-3xl font-light">Final Bill: <span className="font-bold font-sans ml-5">{finalCost.toFixed(2)}</span></p>
           </div>
         </div>
 
