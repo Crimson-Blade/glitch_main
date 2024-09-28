@@ -4,14 +4,23 @@ import { Button, TextField } from '@mui/material';
 import { useEffect, useState } from 'react';
 import Link from 'next/link'; // Import Link for navigation
 
+// Define the type for the registration data
+interface Registration {
+  user_id: string;
+  name: string;
+  phone_number: string;
+  date: string; // Date is typically returned as a string from APIs
+}
+
 const Dashboard = () => {
-  const [data, setData] = useState([]);
+  // Define the state with the Registration[] type
+  const [data, setData] = useState<Registration[]>([]);
 
   const fetchData = () => {
     // Fetch data from the backend
     fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/registrations/today/`)
       .then((response) => response.json())
-      .then((fetchedData) => {
+      .then((fetchedData: Registration[]) => {
         if (fetchedData) {
           console.log("Data:", fetchedData);
           setData(fetchedData); // Update state with the fetched data
@@ -123,7 +132,7 @@ const Dashboard = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="5" className="p-3 text-center">
+                  <td colSpan={5} className="p-3 text-center">
                     No Data Available
                   </td>
                 </tr>
