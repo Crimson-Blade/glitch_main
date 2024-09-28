@@ -33,7 +33,7 @@ const Dashboard = () => {
       <div className="container mx-auto">
         <h1 className="text-5xl font-bold text-purple-400 mb-8 text-center font-heading pb-5">Dashboard</h1>
         
-        <div className="flex justify-around gap-4 mb-6">
+        <div className="flex justify-around gap-4 mb-14">
           <Button variant="contained" className="bg-purple-600 text-white hover:bg-purple-700 py-1.5 px-4 text-sm">
             Add Entry
           </Button>
@@ -44,14 +44,7 @@ const Dashboard = () => {
             Edit User
           </Button>
           {/* Refresh Button */}
-          <Button
-            variant="contained"
-            className="bg-purple-600 text-white hover:bg-purple-700 py-1.5 px-4 text-sm"
-            onClick={fetchData} // Call fetchData when the button is clicked
-            startIcon={<Refresh />}
-          >
-            Refresh
-          </Button>
+       
           <div className="flex items-center border-2 border-purple-600 rounded-md bg-transparent overflow-hidden">
             <TextField
               variant="outlined"
@@ -71,7 +64,28 @@ const Dashboard = () => {
               }}
             />
           </div>
+          
         </div>
+        <div className="flex items-center justify-between">
+        <label className="flex items-center text-xl text-blue-100">
+    <input 
+      type="checkbox" 
+      className="mr-5 ml-5 transform scale-150 " 
+      defaultChecked 
+    />
+    Show active users
+  </label>
+  
+  <Button
+    variant="contained"
+    className="bg-blue-500 text-white hover:bg-blue-700 rounded-3xl py-3 px-5 text-sm mr-5"
+    onClick={fetchData} // Call fetchData when the button is clicked
+    startIcon={<Refresh />}
+  >
+    Refresh
+  </Button>
+</div>
+
         
         <div className="overflow-x-auto pt-10">
           <table className="min-w-full border bg-opacity-40 backdrop-blur-md rounded-md border-purple-600">
