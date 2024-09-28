@@ -5,14 +5,69 @@ import Head from 'next/head';
 import Image from 'next/image';
 import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
 import PhoneOutlinedIcon from '@mui/icons-material/PhoneOutlined';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'; // Import an arrow icon
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { Button } from '@mui/material';
+import { Router, useRouter } from 'next/router';
+import Link from 'next/link';
 
 const Home = () => {
-  const [dateTime, setDateTime] = useState<string>('');
+
+  function handleSubmission(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    console.log("Form Submitted");
+    console.log("Name:", name);
+    console.log("Phone Number:", phoneNumber);
+    console.log("Entry Time:", dateTime);
+
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/registrations`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: name,
+        phone_number: phoneNumber,
+        entry_time: dateTime,
+      }),
+    })
+      .then((response) => response.json()) // Convert response to JSON
+      .then((data) => {
+        if (data) {
+          console.log("Registration Successful:", data);
+          // Handle successful registration (e.g., show a success message)
+        } else {
+          console.log("Registration Failed");
+          // Handle failed registration (e.g., show an error message)
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        // Handle error (e.g., show an error message)
+      });
+  }
+
+  const [name, setName] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [dateTime, setDateTime] = useState("");
+
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setName(e.target.value);
+    console.log("Name:", e.target.value); // Log the name
+  };
+
+  const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPhoneNumber(e.target.value);
+    console.log("Phone Number:", e.target.value); // Log the phone number
+  };
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setDateTime(e.target.value);
+    console.log("Entry Time:", e.target.value); // Log the date/time
   };
+
+  // const handleBackToDashboard = () => {
+  //   router.push("/dashboard");  // Programmatic navigation to dashboard
+  // };
 
   return (
     <>
@@ -23,27 +78,28 @@ const Home = () => {
       </Head>
       <div className="relative min-h-screen bg-cover bg-center" style={{ backgroundImage: "url('./images/bg.jpg')" }}>
         <div className="flex justify-between items-center py-10 px-20">
-          <h1 className='font-heading text-purple-400 text-5xl'>Entry</h1>
-          <button
-            className="flex items-center bg-purple-500 text-white font-semibold py-3 px-4 rounded-full hover:bg-purple-600 cursor-pointer"
-            onClick={() => {/* Handle navigation to dashboard */}}
-          >
-            <ArrowBackIcon className="mr-2" />
-            Back to Dashboard
-          </button>
+          <h1 className="font-heading text-purple-400 text-5xl">Entry</h1>
+          <Link href="/dashboard" passHref>
+            <Button className="flex items-center bg-purple-500 text-white font-semibold py-3 px-4 rounded-full hover:bg-purple-600 cursor-pointer">
+              <ArrowBackIcon className="mr-2" />
+              Back to Dashboard
+            </Button>
+          </Link>
         </div>
-        <div className="absolute inset-0 flex items-center justify-center pt-5">
+        <div className=" inset-0 flex items-center justify-center pt-5">
           <div className="flex bg-white bg-opacity-10 backdrop-blur-sm border border-purple-500 rounded-lg p-8 max-w-4xl mx-4 md:mx-auto">
             {/* Login Form Container */}
             <div className="w-full md:w-1/2 pr-4">
-              <form>
+              <form onSubmit={handleSubmission}>
                 {/* Name Field */}
                 <div className="relative mb-8 mt-6">
                   <input
                     type="text"
                     id="name"
                     className="peer block w-full pl-3 pb-2 pt-5 pr-12 border border-purple-500 border-t-0 border-l-0 border-r-0 shadow-sm bg-transparent placeholder-transparent focus:outline-none text-blue-300"
-                    placeholder=" "
+                    placeholder="Name"
+                    value={name}
+                    onChange={handleNameChange}
                     required
                   />
                   <PersonOutlinedIcon className="absolute top-3 right-3 text-purple-500" />
@@ -61,7 +117,9 @@ const Home = () => {
                     type="tel"
                     id="phone"
                     className="peer block w-full pl-3 pb-2 pt-5 pr-12 border border-purple-500 border-t-0 border-l-0 border-r-0 shadow-sm bg-transparent placeholder-transparent focus:outline-none text-blue-300"
-                    placeholder=" "
+                    placeholder="Phone Number"
+                    value={phoneNumber}
+                    onChange={handlePhoneNumberChange}
                     required
                   />
                   <PhoneOutlinedIcon className="absolute top-3 right-3 text-purple-500" />
