@@ -29,6 +29,8 @@ interface Order {
 type SystemNameType = 'lounge'|'console'|'other'
 
 const UserProfile: React.FC<UserProfileProps> = ({ uuid }) => {
+  
+
   const [user, setUser] = useState<any>(null);
   const [systems, setSystems] = useState<System[]>([]);
   const [loungePrice, setLoungePrice] = useState<number>(50);
@@ -39,6 +41,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ uuid }) => {
   const [loungeTime, setLoungeTime] = useState<string>('00:00');
   const [consoleTime, setConsoleTime] = useState<string>('00:00');
   const [otherTime, setOtherTime] = useState<string>('00:00');
+  const [showToast, setShowToast] = useState<boolean>(false); 
 
   const loungeIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const consoleIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -202,6 +205,31 @@ const UserProfile: React.FC<UserProfileProps> = ({ uuid }) => {
         stopTimerAndResetSystem("other");
         // Recalculate totals if your calculations depend on state variables
         // (You may need to recalculate totalSystemCost, totalFoodCost, totalCost, etc.)
+      } else {
+        console.error('Failed to generate bill');
+      }
+    } catch (error) {
+      console.error('Error generating bill:', error);
+    }
+  };
+
+  const handleGenerateBillButton = async () => {
+    setShowToast(true); // Show toast notification
+    setTimeout(() => setShowToast(false), 3000); // Hide after 3 seconds
+
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/billing/${uuid}/`, {
+        method: 'GET',
+      });
+      if (response.ok) {
+        const billData = await response.json();
+        console.log('Bill generated:', billData);
+
+        setSystems(billData.systems);
+        setFoodItems(billData.orders); // Update food items if necessary
+        stopTimerAndResetSystem('lounge');
+        stopTimerAndResetSystem('console');
+        stopTimerAndResetSystem('other');
       } else {
         console.error('Failed to generate bill');
       }
@@ -566,12 +594,7 @@ const UserProfile: React.FC<UserProfileProps> = ({ uuid }) => {
         <div className="bg-opacity-20 backdrop-blur-md rounded-lg p-6 shadow-lg w-full max-w-4xl border border-purple-400 mt-8">
           <h2 className="t text-2xl font-heading mb-10 text-blue-300">Total Bill</h2>
           {/* Generate Bill Button */}
-          <button
-            className="bg-green-600 text-white py-3 px-7 font-bold text-xl rounded hover:bg-green-500 transition mt-8"
-            onClick={handleGenerateBill}
-          >
-            Generate Bill
-          </button>
+         
           <table className="min-w-full text-left text-sm text-purple-700">
             <thead>
               <tr className="bg-purple-600 text-white border border-purple-300">
@@ -612,33 +635,67 @@ const UserProfile: React.FC<UserProfileProps> = ({ uuid }) => {
             </tbody>
           </table>
           <div className="mt-4">
-            <p className="text-white text-2xl font-light text-right mr-2">
-              Total Cost:{' '}
-              <span className="font-bold font-sans">{totalCost.toFixed(2)}</span>
-            </p>
-            <div className="mt-2 flex mb-10">
-              <label className="text-white text-xl font-bold mt-2 mr-6">Discount:</label>
-              <div className="flex space-x-10 mt-2">
-                <button
-                  onClick={() => setDiscount(5)}
-                  className="bg-purple-600 text-white px-5 py-1 rounded"
-                >
-                  5%
-                </button>
-                <button
-                  onClick={() => setDiscount(10)}
-                  className="bg-purple-600 text-white ml-5 px-5 py-1 rounded"
-                >
-                  10%
-                </button>
-                <button
-                  onClick={() => setDiscount(15)}
-                  className="bg-purple-600 text-white px-5 py-1 rounded"
-                >
-                  15%
-                </button>
-              </div>
-            </div>
+          <div className="flex items-center justify-between mb-8">
+          <button
+  className="bg-green-600 text-white py-3 px-7 font-bold text-xl rounded hover:bg-green-500 transition mt-8"
+  onClick={handleGenerateBillButton}
+>
+  Generate Bill
+</button>
+
+{/* Toast Notification */}
+{showToast && (
+  <div className="fixed left-1/2 transform -translate-x-1/2 w-[50%] bg-white text-black py-4 mt-5 px-6 rounded-lg shadow-lg border-l-8 border-green-600">
+    Your bill is being generated...
+  </div>
+)}
+
+  <div className="flex items-center justify-center mt-4">
+    <p className="text-white text-2xl font-light text-right mr-2">
+      Total Cost:{' '}
+      <span className="font-bold font-sans">{totalCost.toFixed(2)}</span>
+    </p>
+  </div>
+</div>
+
+<div className="mt-2 flex mb-10">
+  <label className="text-white text-xl font-bold mt-2 mr-6">Discount:</label>
+  <div className="flex space-x-10 mt-2">
+    <button
+      onClick={() => setDiscount(0)}
+      className={`px-5 py-1 rounded ${
+        discount === 0 ? 'bg-green-600' : 'bg-purple-600'
+      } text-white`}
+    >
+      0%
+    </button>
+    <button
+      onClick={() => setDiscount(5)}
+      className={`px-5 py-1 rounded ${
+        discount === 5 ? 'bg-green-600' : 'bg-purple-600'
+      } text-white ml-5`}
+    >
+      5%
+    </button>
+    <button
+      onClick={() => setDiscount(10)}
+      className={`px-5 py-1 rounded ${
+        discount === 10 ? 'bg-green-600' : 'bg-purple-600'
+      } text-white ml-5`}
+    >
+      10%
+    </button>
+    <button
+      onClick={() => setDiscount(15)}
+      className={`px-5 py-1 rounded ${
+        discount === 15 ? 'bg-green-600' : 'bg-purple-600'
+      } text-white ml-5`}
+    >
+      15%
+    </button>
+  </div>
+</div>
+
             <p className="text-white mt-2 text-3xl font-light">
               Final Bill:{' '}
               <span className="font-bold font-sans ml-5">{finalCost.toFixed(2)}</span>
