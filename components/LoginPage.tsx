@@ -7,12 +7,20 @@ import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
 import PhoneOutlinedIcon from '@mui/icons-material/PhoneOutlined';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Button } from '@mui/material';
-import { Router, useRouter } from 'next/router';
+import Snackbar from '@mui/material/Snackbar'; // Import Snackbar
 import Link from 'next/link';
 
 const Home = () => {
+  const [name, setName] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [dateTime, setDateTime] = useState("");
+  const [toastOpen, setToastOpen] = useState(false); // State for toast notification
 
-  function handleSubmission(e: React.FormEvent<HTMLFormElement>) {
+  const handleToastClose = () => {
+    setToastOpen(false); // Function to close the toast
+  };
+
+  const handleSubmission = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log("Form Submitted");
     console.log("Name:", name);
@@ -30,44 +38,31 @@ const Home = () => {
         entry_time: dateTime,
       }),
     })
-      .then((response) => response.json()) // Convert response to JSON
+      .then((response) => response.json())
       .then((data) => {
         if (data) {
           console.log("Registration Successful:", data);
-          // Handle successful registration (e.g., show a success message)
+          setToastOpen(true); // Show toast on success
         } else {
           console.log("Registration Failed");
-          // Handle failed registration (e.g., show an error message)
         }
       })
       .catch((error) => {
         console.error("Error:", error);
-        // Handle error (e.g., show an error message)
       });
-  }
-
-  const [name, setName] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [dateTime, setDateTime] = useState("");
+  };
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setName(e.target.value);
-    console.log("Name:", e.target.value); // Log the name
   };
 
   const handlePhoneNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPhoneNumber(e.target.value);
-    console.log("Phone Number:", e.target.value); // Log the phone number
   };
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setDateTime(e.target.value);
-    console.log("Entry Time:", e.target.value); // Log the date/time
   };
-
-  // const handleBackToDashboard = () => {
-  //   router.push("/dashboard");  // Programmatic navigation to dashboard
-  // };
 
   return (
     <>
@@ -88,10 +83,8 @@ const Home = () => {
         </div>
         <div className=" inset-0 flex items-center justify-center pt-5">
           <div className="flex bg-white bg-opacity-10 backdrop-blur-sm border border-purple-500 rounded-lg p-8 max-w-4xl mx-4 md:mx-auto">
-            {/* Login Form Container */}
             <div className="w-full md:w-1/2 pr-4">
               <form onSubmit={handleSubmission}>
-                {/* Name Field */}
                 <div className="relative mb-8 mt-6">
                   <input
                     type="text"
@@ -111,7 +104,6 @@ const Home = () => {
                   </label>
                 </div>
 
-                {/* Phone Number Field */}
                 <div className="relative mb-8">
                   <input
                     type="tel"
@@ -131,7 +123,6 @@ const Home = () => {
                   </label>
                 </div>
 
-                {/* Date Time Field */}
                 <div className="relative mb-12">
                   <input
                     type="datetime-local"
@@ -159,10 +150,8 @@ const Home = () => {
               </form>
             </div>
 
-            {/* Divider */}
             <div className="hidden md:block w-px bg-gray-300 mx-4"></div>
 
-            {/* Image Container */}
             <div className="w-full md:w-1/2 pl-4">
               <Image
                 src="/images/QR_Code_Sample.png"
@@ -174,6 +163,23 @@ const Home = () => {
             </div>
           </div>
         </div>
+
+        {/* Toast Notification */}
+        <Snackbar
+          open={toastOpen}
+          autoHideDuration={3000}
+          onClose={handleToastClose}
+          anchorOrigin={{ vertical: 'top', horizontal: 'center' }} // Top center position
+          ContentProps={{
+            style: {
+              backgroundColor: '#fff', // White background
+              color: '#000', // Black text
+              borderLeft: '5px solid #4caf50', // Thick green left border
+              boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)', // Optional shadow
+            },
+          }}
+          message="User added successfully!"
+        />
       </div>
     </>
   );
