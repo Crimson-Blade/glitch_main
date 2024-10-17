@@ -7,16 +7,15 @@ const data = [
   { name: "Group B", value: 300 },
   { name: "Group C", value: 300 },
   { name: "Group D", value: 200 },
+  { name: "Group E", value: 200 },
 ];
 
 // Define colors for the pie chart segments
-const COLORS = ["#FF8042", "#0088FE", "#00C49F", "#FFBB28"];
+const COLORS = ["#FF8042", "#0088FE", "#00C49F", "#FFBB28", "#FFB"];
 
 const CustomPieChart = () => {
   return (
     <div className="w-full p-0">
-      {" "}
-      {/* Remove padding and border */}
       <h3 className="text-center text-purple-500 font-semibold mb-2">
         Pie Chart
       </h3>
