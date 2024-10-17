@@ -8,7 +8,7 @@ import Link from "next/link";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { useState } from "react";
-import CustomPieChart from "@/components/PieChart"; // Import the updated PieChart component
+import CustomPieChart from "@/components/PieChart";
 import dayjs, { Dayjs } from "dayjs";
 
 const Home = () => {
