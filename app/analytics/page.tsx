@@ -1,143 +1,195 @@
-"use client";
+"use client"; // Mark as Client Component
 
-import Head from "next/head";
-import Snackbar from "@mui/material/Snackbar";
-import { Button } from "@mui/material";
-import ArrowBackIcon from "@mui/icons-material/ArrowBack";
-import Link from "next/link";
-import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { useState } from "react";
-import CustomPieChart from "@/components/PieChart";
-import dayjs, { Dayjs } from "dayjs";
+import { useState } from 'react';
+import { Line, Pie } from 'react-chartjs-2';
+import { Chart as ChartJS, LineElement, CategoryScale, LinearScale, PointElement, ArcElement, Tooltip, Legend } from 'chart.js';
+import 'tailwindcss/tailwind.css';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { Button } from '@mui/material';
+import Link from 'next/link';
 
-const Home = () => {
-  const [toastOpen, setToastOpen] = useState(false);
-  const [startDate, setStartDate] = useState<Dayjs | null>(null);
-  const [endDate, setEndDate] = useState<Dayjs | null>(null);
+ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement, ArcElement, Tooltip, Legend);
 
-  const handleToastClose = () => {
-    setToastOpen(false);
+const AnalyticsPage = () => {
+  const [timeRange, setTimeRange] = useState({
+    registrations: '30_days',
+    sessionDuration: '30_days',
+    peakHours: '30_days',
+    income: '30_days',
+    usersTrend: '30_days',
+  });
+
+  const handleTimeRangeChange = (chartType: string, range: string) => {
+    setTimeRange((prev) => ({ ...prev, [chartType]: range }));
   };
 
-  const handleDone = () => {
-    if (startDate && endDate) {
-      console.log("Start Date:", startDate.format("YYYY-MM-DD"));
-      console.log("End Date:", endDate.format("YYYY-MM-DD"));
-      setToastOpen(true);
-    } else {
-      alert("Please select both start and end dates");
-    }
+  // Chart data for different metrics
+  const lineChartData = (label: string) => ({
+    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    datasets: [
+      {
+        label,
+        data: [120, 150, 180, 220, 250, 300, 350],
+        fill: true,
+        backgroundColor: 'rgba(156, 39, 176, 0.2)',
+        borderColor: 'rgba(255, 255, 255, 1)', // Set the line color to white
+        tension: 0.4,
+      },
+    ],
+  });
+
+  const pieChartData = {
+    labels: ['Active Users', 'Inactive Users'],
+    datasets: [
+      {
+        label: 'Active vs Inactive Users',
+        data: [300, 120],
+        backgroundColor: ['#9C27B0', '#E1BEE7'],
+        hoverOffset: 4,
+      },
+    ],
   };
 
   return (
-    <>
-      <Head>
-        <title>Analytics</title>
-        <meta name="description" content="UI with glassmorphism theme" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
-      {/* Background Image */}
-      <div
-        className="relative min-h-screen bg-cover bg-center"
-        style={{ backgroundImage: "url('./images/bg.jpg')" }}
-      >
-        <div className="flex justify-between items-center flex-wrap py-10 px-6 md:px-20">
-          <h1 className="font-heading text-white text-3xl md:text-5xl mb-4 md:mb-0">
-            Analytics
-          </h1>
-
+    <div className="relative min-h-screen bg-fixed bg-center bg-no-repeat bg-cover" style={{ backgroundImage: "url('/images/bg.jpg')" }}>
+      <div className="container mx-auto pb-12">
+      <div className="flex justify-between items-center py-10 px-20">
+          <h1 className="font-heading text-purple-400 text-5xl">Entry</h1>
           <Link href="/dashboard" passHref>
-            <Button className="flex items-center bg-purple-500 text-white font-semibold py-2 px-4 rounded-full hover:bg-purple-600 cursor-pointer">
+            <Button className="flex items-center bg-purple-500 text-white font-semibold py-3 px-4 rounded-full hover:bg-purple-600 cursor-pointer">
               <ArrowBackIcon className="mr-2" />
-              Back
+              Back to Dashboard
             </Button>
           </Link>
         </div>
+        
+        {/* Chart Container */}
+        <div className="grid grid-cols-2 md:grid-cols-2 gap-8">
+          {/* Chart 1: Daily/Weekly/Monthly Registrations */}
+          <ChartWithDropdown
+            label="Daily/Weekly/Monthly Registrations"
+            chartData={lineChartData('Registrations')}
+            timeRange={timeRange.registrations}
+            handleTimeRangeChange={(range) => handleTimeRangeChange('registrations', range)}
+          />
 
-        {/* Main Container for Date Pickers and Pie Charts */}
-        <div className="flex items-center justify-center pt-5">
-          <div className="w-full md:w-3/4 bg-white bg-opacity-10 backdrop-blur-md rounded-lg p-8 mx-4 md:mx-auto">
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <div className="h-full flex flex-col items-center justify-center">
-                {/* Date Pickers Section */}
-                <div className="flex flex-col md:flex-row items-center justify-center gap-4 mb-4 w-full">
-                  {/* Start Date Picker */}
-                  <div className="flex flex-col items-center w-full md:w-1/2">
-                    <label className="text-purple-500 mb-2">Start Date</label>
-                    <DatePicker
-                      value={startDate}
-                      onChange={(newValue) => setStartDate(newValue)}
-                      renderInput={(params) => (
-                        <input
-                          {...params.inputProps}
-                          className="p-2 border border-purple-500 rounded-md text-purple-500 bg-transparent placeholder-purple-500 focus:outline-none"
-                        />
-                      )}
-                    />
-                  </div>
-                  {/* End Date Picker */}
-                  <div className="flex flex-col items-center w-full md:w-1/2">
-                    <label className="text-purple-500 mb-2">End Date</label>
-                    <DatePicker
-                      value={endDate}
-                      onChange={(newValue) => setEndDate(newValue)}
-                      renderInput={(params) => (
-                        <input
-                          {...params.inputProps}
-                          className="p-2 border border-purple-500 rounded-md text-purple-500 bg-transparent placeholder-purple-500 focus:outline-none"
-                        />
-                      )}
-                    />
-                  </div>
-                </div>
+          {/* Chart 2: Active vs Inactive Users */}
+          <ChartWithDropdown
+            label="Active vs Inactive Users"
+            chartData={pieChartData}
+            type="pie"
+            timeRange={timeRange.usersTrend}
+            handleTimeRangeChange={(range) => handleTimeRangeChange('usersTrend', range)}
+          />
 
-                {/* Done Button */}
-                <Button
-                  onClick={handleDone}
-                  className="bg-purple-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-purple-600 cursor-pointer mt-4"
-                >
-                  Done
-                </Button>
+          {/* Chart 3: Average Session Duration */}
+          <ChartWithDropdown
+            label="Average Session Duration"
+            chartData={lineChartData('Average Session Duration')}
+            timeRange={timeRange.sessionDuration}
+            handleTimeRangeChange={(range) => handleTimeRangeChange('sessionDuration', range)}
+          />
 
-                {/* Pie Charts Section without Borders */}
-                <div className="flex items-center justify-center py-10 w-full">
-                  <div className="flex justify-around w-full">
-                    <div className="flex-1 mx-2">
-                      {/* Flex item for the first pie chart */}
-                      <CustomPieChart />
-                    </div>
-                    <div className="flex-1 mx-2">
-                      {/* Flex item for the second pie chart */}
-                      <CustomPieChart />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </LocalizationProvider>
-          </div>
+          {/* Chart 4: Peak Hours */}
+          <ChartWithDropdown
+            label="Peak Hours"
+            chartData={lineChartData('Peak Hours')}
+            timeRange={timeRange.peakHours}
+            handleTimeRangeChange={(range) => handleTimeRangeChange('peakHours', range)}
+          />
+
+          {/* Chart 5: Daily/Weekly Trends */}
+          <ChartWithDropdown
+            label="Daily/Weekly Trends"
+            chartData={pieChartData}
+            type="pie"
+            timeRange={timeRange.usersTrend}
+            handleTimeRangeChange={(range) => handleTimeRangeChange('usersTrend', range)}
+          />
+
+          {/* Chart 6: Daily/Weekly/Monthly Income */}
+          <ChartWithDropdown
+            label="Daily/Weekly/Monthly Income"
+            chartData={lineChartData('Income')}
+            timeRange={timeRange.income}
+            handleTimeRangeChange={(range) => handleTimeRangeChange('income', range)}
+          />
         </div>
-
-        {/* Toast Notification */}
-        <Snackbar
-          open={toastOpen}
-          autoHideDuration={3000}
-          onClose={handleToastClose}
-          anchorOrigin={{ vertical: "top", horizontal: "center" }}
-          ContentProps={{
-            style: {
-              backgroundColor: "#fff",
-              color: "#000",
-              borderLeft: "5px solid #4caf50",
-              boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
-            },
-          }}
-          message="Dates logged successfully!"
-        />
       </div>
-    </>
+    </div>
   );
 };
 
-export default Home;
+// ChartWithDropdown component to handle individual chart + dropdown
+const ChartWithDropdown = ({ label, chartData, timeRange, handleTimeRangeChange, type = 'line' }) => {
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        labels: {
+          color: 'white', // Set legend labels color to white
+        },
+      },
+      tooltip: {
+        backgroundColor: '#4A148C', // Set tooltip background color to dark purple
+        titleColor: 'white', // Set tooltip title color to white
+        bodyColor: 'white', // Set tooltip body color to white
+      },
+    },
+    scales: {
+      x: {
+        ticks: {
+          color: 'white', // Set x-axis ticks color to white
+        },
+      },
+      y: {
+        ticks: {
+          color: 'white', // Set y-axis ticks color to white
+        },
+      },
+    },
+  };
+
+  // Modify the line dataset in chartData to use a lighter purple
+  if (type === 'line') {
+    chartData.datasets[0].borderColor = 'rgba(156, 39, 176, 0.7)'; // Lighter purple for the line
+  }
+
+  return (
+    <div className="bg-white bg-opacity-10 backdrop-blur-md border border-purple-500 rounded-lg p-6 w-full">
+
+      <h2 className="text-center text-2xl font-bold text-purple-200 mb-8">{label}</h2> {/* Change heading color to white */}
+      
+      {/* Dropdown for Time Range */}
+      <div className="flex justify-center mb-4">
+        <select
+          value={timeRange}
+          onChange={(e) => handleTimeRangeChange(e.target.value)}
+          className="px-4 py-2 mx-2 border border-purple-500 text-purple-500 rounded"
+        >
+          <option value="7_days">Last 7 Days</option>
+          <option value="30_days">Last 30 Days</option>
+          <option value="3_months">Last 3 Months</option>
+        </select>
+      </div>
+
+      {/* Chart Display */}
+      <div className="w-full h-[400px] flex justify-center pt-5">
+        {type === 'line' ? (
+          <Line 
+            data={chartData} 
+            options={chartOptions} 
+            height={400} 
+            width={600}  
+          />
+        ) : (
+          <Pie data={chartData} />
+        )}
+      </div>
+    </div>
+  );
+};
+
+
+export default AnalyticsPage;
