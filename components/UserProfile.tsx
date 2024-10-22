@@ -4,7 +4,7 @@ import { IconButton } from '@mui/material';
 import EditIcon from '@mui/icons-material/Edit';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import Link from 'next/link';
-import { getFormattedUTCDate } from '@/utils';
+import { getFormattedUTCDate } from '@/lib/utils';
 
 interface UserProfileProps {
   uuid: string;

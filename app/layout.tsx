@@ -1,9 +1,20 @@
+import { ReactQueryProvider } from '@/lib/providers';
 import '../styles/globals.css';
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  QueryClient,
+  QueryClientProvider,
+} from '@tanstack/react-query'
+
 
 export const metadata = {
-  title: 'My Next.js App',
-  description: 'A Next.js app with TypeScript and Tailwind CSS',
+  title: 'Go Perch',
+  description: 'Go Perch: Gaming ERP',
 };
+
+const queryClient = new QueryClient();
 
 export default function RootLayout({
   children,
@@ -12,7 +23,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body>
+      <ReactQueryProvider>
+        {children}
+      </ReactQueryProvider>
+      </body>
     </html>
   );
 }
