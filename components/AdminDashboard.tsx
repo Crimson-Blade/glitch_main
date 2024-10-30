@@ -4,6 +4,7 @@ import {
   Edit,
   Delete,
   Refresh,
+  PlusOne,
   SportsEsports,
   Fastfood,
   Add,
@@ -17,6 +18,7 @@ import {
   DialogContent,
   DialogActions,
   Snackbar,
+  ButtonBase,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import Link from "next/link"; // Import Link for navigation
@@ -124,24 +126,27 @@ const Dashboard = () => {
         </h1>
 
         <div className="flex justify-around gap-4 mb-14">
-          <Button
-            variant="contained"
-            className="bg-purple-600 text-white hover:bg-purple-700 py-1.5 px-4 text-sm"
-          >
-            Add Entry
-          </Button>
-          <Button
-            variant="contained"
-            className="bg-purple-600 text-white hover:bg-purple-700 py-1.5 px-4 text-sm"
-          >
-            Edit Menu
-          </Button>
-          <Button
+          <Link href="/" className="flex items-center cursor-pointer bg-purple-600 text-white hover:bg-purple-700 py-1.5 px-4 text-sm rounded-md" passHref>
+            <Button
+            startIcon={<PlusOne />}
+            className="text-white"
+            >
+              ADD ENTRY
+            </Button>
+          </Link>
+          
+          {/* <Link href="/" className="flex items-center cursor-pointer bg-purple-600 text-white hover:bg-purple-700 py-1.5 px-4 text-sm rounded-md" passHref>
+            <ButtonBase
+            >
+              EDIT MENU
+            </ButtonBase>
+          </Link> */}
+          {/* <Button
             variant="contained"
             className="bg-purple-600 text-white hover:bg-purple-700 py-1.5 px-4 text-sm"
           >
             Edit User
-          </Button>
+          </Button> */}
 
           {/* Refresh Button */}
           <div className="flex items-center border-2 border-purple-600 rounded-md bg-transparent overflow-hidden">
