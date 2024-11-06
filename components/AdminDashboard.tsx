@@ -19,6 +19,7 @@ import {
   DialogActions,
   Snackbar,
   ButtonBase,
+  CircularProgress,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import Link from "next/link"; // Import Link for navigation
@@ -61,9 +62,11 @@ const Dashboard = () => {
     [key: string]: number;
   }>({}); // Track food item quantities
   const [toastOpen, setToastOpen] = useState(false); // Toast visibility
+  const [loading, setLoading] = useState(false); // Add loading state
 
   const fetchData = () => {
     // Fetch data from the backend
+    setLoading(true); // Set loading to true
     fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/registrations/today/`)
       .then((response) => response.json())
       .then((fetchedData: Registration[]) => {
@@ -76,6 +79,9 @@ const Dashboard = () => {
       })
       .catch((error) => {
         console.error("Error:", error);
+      })
+      .finally(() => {
+        setLoading(false); // Set loading to false
       });
   };
 
@@ -182,8 +188,9 @@ const Dashboard = () => {
           <Button
             variant="contained"
             className="bg-blue-500 text-white hover:bg-blue-700 rounded-3xl py-3 px-5 text-sm mr-5"
-            onClick={fetchData} // Call fetchData when the button is clicked
-            startIcon={<Refresh />}
+            onClick={fetchData}
+            disabled={loading} // Disable button while loading
+            startIcon={loading ? <CircularProgress size={20} color="inherit" /> : <Refresh />} // Show spinner or refresh icon
           >
             Refresh
           </Button>
