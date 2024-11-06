@@ -9,12 +9,15 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Button } from '@mui/material';
 import Snackbar from '@mui/material/Snackbar'; // Import Snackbar
 import Link from 'next/link';
+import { format } from 'date-fns';
+
 
 const Home = () => {
   const [name, setName] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
-  const [dateTime, setDateTime] = useState("");
+  const [dateTime, setDateTime] = useState(format(new Date(), "yyyy-MM-dd'T'HH:mm")); // Set current date and time
   const [toastOpen, setToastOpen] = useState(false); // State for toast notification
+  const [toastMessage, setToastMessage] = useState(""); // State for toast message
 
   const handleToastClose = () => {
     setToastOpen(false); // Function to close the toast
@@ -43,12 +46,17 @@ const Home = () => {
         if (data) {
           console.log("Registration Successful:", data);
           setToastOpen(true); // Show toast on success
+          setToastMessage("Registration Successful");
         } else {
           console.log("Registration Failed");
+          setToastOpen(true);
+          setToastMessage("Registration Failed");
         }
       })
       .catch((error) => {
         console.error("Error:", error);
+        setToastOpen(true);
+        setToastMessage("Error Occurred");
       });
   };
 
@@ -61,6 +69,7 @@ const Home = () => {
   };
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log(e.target.value);
     setDateTime(e.target.value);
   };
 
@@ -130,7 +139,6 @@ const Home = () => {
                     value={dateTime}
                     onChange={handleDateChange}
                     className="peer block w-full pl-3 pb-2 pt-5 pr-3 border border-purple-500 border-t-0 border-l-0 border-r-0 shadow-sm bg-transparent placeholder-transparent focus:outline-none text-blue-300"
-                    placeholder=" "
                     required
                   />
                   <label
@@ -178,7 +186,7 @@ const Home = () => {
               boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.1)', // Optional shadow
             },
           }}
-          message="User added successfully!"
+          message={toastMessage}
         />
       </div>
     </>
