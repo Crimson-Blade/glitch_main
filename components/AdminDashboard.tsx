@@ -23,6 +23,7 @@ import {
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import Link from "next/link"; // Import Link for navigation
+import { set } from "date-fns";
 
 // Define the type for the registration data
 interface Registration {
@@ -61,13 +62,20 @@ const Dashboard = () => {
   const [foodQuantities, setFoodQuantities] = useState<{
     [key: string]: number;
   }>({}); // Track food item quantities
-  const [toastOpen, setToastOpen] = useState(false); // Toast visibility
+  const [foodToastOpen, setFoodToastOpen] = useState(false); // Food Toast visibility
+  const [endToastOpen, setEndToastOpen] = useState(false); // End Toast visibility
   const [loading, setLoading] = useState(false); // Add loading state
+  const [onlyActive, setOnlyActive] = useState(true); // Add state for active users
+  const [error, setError] = useState("An Error has Occured"); // Add error state
+  const [errorToastOpen, setErrorToastOpen] = useState(false); // Error Toast visibility
+
 
   const fetchData = () => {
     // Fetch data from the backend
     setLoading(true); // Set loading to true
-    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/registrations/today/`)
+    const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/registrations/today/?onlyActive=${onlyActive}`;
+    
+    fetch(url)
       .then((response) => response.json())
       .then((fetchedData: Registration[]) => {
         if (fetchedData) {
@@ -104,22 +112,104 @@ const Dashboard = () => {
     setFoodQuantities((prevQuantities) => {
       const currentQuantity = prevQuantities[item] || 0;
       const newQuantity = Math.max(currentQuantity + change, 0); // Ensure quantity does not go below 0
-      return { ...prevQuantities, [item]: newQuantity };
+  
+      // Return new state with only positive quantities
+      if (newQuantity > 0) {
+        return { ...prevQuantities, [item]: newQuantity };
+      } else {
+        const { [item]: _, ...rest } = prevQuantities;
+        return rest;
+      }
     });
   };
 
-  const handleOrder = () => {
-    const orderedItems = Object.entries(foodQuantities).flatMap(
-      ([item, quantity]) => Array(quantity).fill(item)
-    );
+  const handleOrder = async (userId: string) => {
+    const orderedItems = Object.entries(foodQuantities).map(([item, quantity]) => ({
+      item_name: item,
+      quantity,
+      // price: getPriceForItem(item), // Assumes a function to get the price of each item
+      price: 0,
+    }));
+  
     console.log("Ordered Items:", orderedItems); // Log ordered items to console
-    setOpen(false); // Close the modal
-    setToastOpen(true); // Show toast notification
+  
+    try {
+      for (const order of orderedItems) {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/orders/${userId}/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(order),
+        });
+  
+        if (!response.ok) {
+          throw new Error(`Failed to place order for item: ${order.item_name}`);
+        }
+  
+        const data = await response.json();
+        console.log('Order Success:', data); // Log success for each item
+      }
+  
+      setOpen(false); // Close the modal
+      setFoodToastOpen(true); // Show toast notification
+    } catch (error:any) {
+      console.error('Order Error:', error.message);
+      setError(error.message); // Set error state
+      setErrorToastOpen(true); // Show error toast
+    }
   };
 
-  const handleToastClose = () => {
-    setToastOpen(false); // Close the toast
+  const handleEndSession = async (uuid: string) => {
+    try {
+      // Finalize bill
+      const finalizeResponse = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/billing/${uuid}/finalize/`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+  
+      if (!finalizeResponse.ok) {
+        throw new Error(`Finalize request failed with status: ${finalizeResponse.status}`);
+      }
+  
+      const finalizeData = await finalizeResponse.json();
+      console.log('Finalized bill Successfully:', finalizeData);
+  
+      // Close the session (only runs if the above succeeds)
+      const endSessionResponse = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/sessions/${uuid}/end/`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+  
+      if (!endSessionResponse.ok) {
+        throw new Error(`End session request failed with status: ${endSessionResponse.status}`);
+      }
+  
+      const endSessionData = await endSessionResponse.json();
+      console.log('Ended Session Succesfully:', endSessionData);
+      setEndToastOpen(true); // Show success toast
+      fetchData(); // Fetch data after ending session
+    } catch (error: any) {
+      console.error('Error:', error.message);
+      setError(error.message); // Set error state
+      setErrorToastOpen(true); // Show error toast
+    }
   };
+  
+
+  function handleStartSession(uuid:string): void {
+    throw new Error("Function not implemented.");
+  }
 
   return (
     <div
@@ -181,6 +271,7 @@ const Dashboard = () => {
               type="checkbox"
               className="mr-5 ml-5 transform scale-150 "
               defaultChecked
+              onChange={(e) => setOnlyActive(e.target.checked)}
             />
             Show active users
           </label>
@@ -244,12 +335,14 @@ const Dashboard = () => {
                       <Button
                         variant="outlined"
                         className="text-red-500 border-red-500 hover:bg-red-100"
+                        onClick={()=>handleEndSession(entry.user_id)}
                       >
                         <Delete />
                       </Button>
                       <Button
                         variant="outlined"
                         className="text-blue-500 border-blue-500 hover:bg-blue-100"
+                        onClick={() => handleStartSession(entry.user_id)}
                       >
                         <SportsEsports />
                       </Button>
@@ -335,7 +428,7 @@ const Dashboard = () => {
 
           {/* Disable the order button if no items are ordered */}
           <Button
-            onClick={handleOrder}
+            onClick={() => handleOrder(currentUser!.user_id)}
             className="bg-purple-500 text-white px-8 ml-4 py-2" // Set background to purple-500 and text color to white
             disabled={Object.values(foodQuantities).every(
               (quantity) => quantity === 0
@@ -347,23 +440,39 @@ const Dashboard = () => {
       </Dialog>
 
       {/* Toast Notification */}
-      <Snackbar
-        open={toastOpen}
+
+      <ToastMessage isOpen={foodToastOpen} message="Food ordered successfully!" type="success" onClose={() => setFoodToastOpen(false)} />
+      <ToastMessage isOpen={endToastOpen} message="Session ended successfully!" type="success" onClose={() => setEndToastOpen(false)} />
+      <ToastMessage isOpen={errorToastOpen} message={error} type="error" onClose={() => setErrorToastOpen(false)} />
+      
+    </div>
+  );
+};
+
+function ToastMessage({isOpen, message,type = 'success', onClose} : {isOpen: boolean, message: string,type: 'success'|'warning'|'error', onClose: () => void}) {
+  const borderColors = {
+    success: '#4caf50',
+    warning: '#ff9800',
+    error: '#f44336',
+  };
+  
+  return (
+    <Snackbar
+        open={isOpen}
         autoHideDuration={3000}
-        onClose={handleToastClose}
+        onClose={onClose}
         anchorOrigin={{ vertical: "top", horizontal: "center" }} // Top center position
         ContentProps={{
           style: {
             backgroundColor: "#fff", // White background
             color: "#000", // Black text
-            borderLeft: "5px solid #4caf50", // Thick green left border
+            borderLeft: `5px solid ${borderColors[type]}`, // Thick green left border
             boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)", // Optional shadow
           },
         }}
-        message="Order placed successfully!"
+        message={message}
       />
-    </div>
   );
-};
+}
 
 export default Dashboard;
