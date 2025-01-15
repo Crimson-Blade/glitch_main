@@ -10,6 +10,7 @@ import Link from 'next/link';
 import { useRegistrationData } from '@/lib/handlers';
 import { start } from 'repl';
 import { ActiveInactiveUsers, AverageSessionDuration, Income, Registrations, TimeRangeType } from '@/components/charts';
+import AnalyticTable from '@/components/AnalyticsTable';
 
 ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement, ArcElement, Tooltip, Legend);
 
@@ -33,6 +34,13 @@ const AnalyticsPage = () => {
     setTimeRange((prev) => ({ ...prev, [chartType]: range }));
   };
 
+
+  const dummyData: { user_id: number; username: string; amount: number; date: string }[] = [
+    { user_id: 1, username: 'John Doe', amount: 500.00, date: '2024-01-01' },
+    { user_id: 2, username: 'Jane Doe', amount: 750.00, date: '2024-01-02' },
+    { user_id: 3, username: 'Jack Smith', amount: 300.00, date: '2024-01-03' },
+  ];
+  
   
 
   return (
@@ -105,6 +113,10 @@ const AnalyticsPage = () => {
             handleTimeRangeChangeProp={(range: string) => handleTimeRangeChange('income', range)}
           />
             
+        </div>
+        <div className="mt-12">
+          <h2 className="text-center font-semibold mb-6 font-heading text-purple-400 text-4xl">User Analytics Table</h2>
+          <AnalyticTable data={dummyData} />
         </div>
       </div>
     </div>
