@@ -42,6 +42,8 @@ const UserProfile: React.FC<UserProfileProps> = ({ uuid }) => {
   const [consoleTime, setConsoleTime] = useState<string>('00:00');
   const [otherTime, setOtherTime] = useState<string>('00:00');
   const [showToast, setShowToast] = useState<boolean>(false); 
+  const [overrideAmount, setOverrideAmount] = useState<number | null>(null);
+  const [isBillOverridden, setIsBillOverridden] = useState<boolean>(false);
 
   const loungeIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const consoleIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -188,30 +190,6 @@ const UserProfile: React.FC<UserProfileProps> = ({ uuid }) => {
     });
   };
 
-  const handleGenerateBill = async () => {
-    try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/billing/${uuid}/`, {
-        method: 'GET',
-      });
-      if (response.ok) {
-        const billData = await response.json();
-        console.log('Bill generated:', billData);
-  
-        // Update the systems and orders state with the latest data
-        setSystems(billData.systems);
-        setFoodItems(billData.orders); // Update food items if necessary
-        stopTimerAndResetSystem("lounge");
-        stopTimerAndResetSystem("console");
-        stopTimerAndResetSystem("other");
-        // Recalculate totals if your calculations depend on state variables
-        // (You may need to recalculate totalSystemCost, totalFoodCost, totalCost, etc.)
-      } else {
-        console.error('Failed to generate bill');
-      }
-    } catch (error) {
-      console.error('Error generating bill:', error);
-    }
-  };
 
   const handleGenerateBillButton = async () => {
     setShowToast(true); // Show toast notification
@@ -375,7 +353,11 @@ const UserProfile: React.FC<UserProfileProps> = ({ uuid }) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ discount_percentage: discount }), // Include discount if applicable
+        body: JSON.stringify({
+          discount_percentage: discount,
+          bill_override: isBillOverridden,
+          override_amount: overrideAmount || 0,
+        }), // Include discount and override if applicable
       });
       if (finalizeResponse.ok) {
         const finalizeData = await finalizeResponse.json();
@@ -696,9 +678,26 @@ const UserProfile: React.FC<UserProfileProps> = ({ uuid }) => {
   </div>
 </div>
 
+<div className="mt-2 flex items-center mb-10">
+  <input
+    type="checkbox"
+    checked={isBillOverridden}
+    onChange={(e) => setIsBillOverridden(e.target.checked)}
+    className="mr-4 h-6 w-6 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+  />
+  <input
+    type="number"
+    value={isBillOverridden && overrideAmount ? overrideAmount : ''}
+    onChange={(e) => setOverrideAmount(e.target.value ? parseFloat(e.target.value) : null)}
+    className="bg-transparent text-white font-bold text-xl  mb-3 border-b border-white focus:outline-none focus:border-purple-500"
+    placeholder="Override Amount..."
+    disabled={!isBillOverridden}
+  />
+</div>
+
             <p className="text-white mt-2 text-3xl font-light">
               Final Bill:{' '}
-              <span className="font-bold font-sans ml-5">{finalCost.toFixed(2)}</span>
+              <span className="font-bold font-sans ml-5">{isBillOverridden? overrideAmount: finalCost.toFixed(2)}</span>
             </p>
           </div>
         </div>
