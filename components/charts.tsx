@@ -1,10 +1,10 @@
 "use client"; // Mark as Client Component
 import { Line, Pie } from 'react-chartjs-2';
-import { Chart as ChartJS, LineElement, CategoryScale, LinearScale, PointElement, ArcElement, Tooltip, Legend } from 'chart.js';
+import { Chart as ChartJS, LineElement, CategoryScale, LinearScale, PointElement, ArcElement, Tooltip, Legend, Filler } from 'chart.js';
 import 'tailwindcss/tailwind.css';
 import { useActiveInactiveUsers, useIncomeData, useRegistrationData, useSessionDurationData } from '@/lib/handlers';
 
-ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement, ArcElement, Tooltip, Legend);
+ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement, ArcElement, Tooltip, Legend, Filler);
 
 export type TimeRangeType = {
   registrations: string,

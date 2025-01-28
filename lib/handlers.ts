@@ -47,6 +47,27 @@ const getSessionDuration = async (startDate: Date, endDate: Date, period: string
   });
   return data;
 };
+
+// API call to fetch daily bills data
+const getDailyBills = async (date: Date) => {
+  const { data } = await apiClient.get('/analytics/daily-bills', {
+    params: {
+      date: formatDate(date),
+    },
+  });
+  
+  return data.daily_bills;
+};
+
+// API call to update bill verification status
+export const updateBillVerification = async (userId: number, isVerified: boolean) => {
+  const { data } = await apiClient.put('/analytics/daily-bills', {
+    user_id: userId,
+    is_verified: isVerified,
+  });
+  return data;
+};
+
 // Custom hook to fetch registration data using TanStack Query
 export const useRegistrationData = (startDate: Date, endDate: Date, period: string) => {
   return useQuery({
@@ -76,5 +97,13 @@ export const useSessionDurationData = (startDate: Date, endDate: Date, period: s
   return useQuery({
     queryKey: ['sessionDurationData', startDate, endDate, period], 
     queryFn: () => getSessionDuration(startDate, endDate, period)
+  });
+};
+
+// Custom hook to fetch daily bills data using TanStack Query
+export const useDailyBillsData = (date: Date) => {
+  return useQuery({
+    queryKey: ['dailyBillsData', date], 
+    queryFn: () => getDailyBills(date)
   });
 };
