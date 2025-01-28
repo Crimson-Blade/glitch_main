@@ -8,6 +8,7 @@ import { styled } from "@mui/material/styles";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday"; // Calendar icon
 import dayjs, { Dayjs } from "dayjs"; // Import Dayjs
 import { useDailyBillsData, updateBillVerification } from "@/lib/handlers";
+import { MinusCircle, PlusCircle } from "lucide-react";
 
 interface TableEntry {
   user_id: number;
@@ -73,6 +74,14 @@ const AnalyticTable: React.FC = () => {
     }
   };
 
+  const handleIncrementDate = () => {
+    setSelectedDate((current) => (current ? current.add(1, "day") : dayjs().add(1, "day")));
+  };
+
+  const handleDecrementDate = () => {
+    setSelectedDate((current) => (current ? current.subtract(1, "day") : dayjs().subtract(1, "day")));
+  };
+
   // Custom styling for the TextField
   const StyledTextField = styled(TextField)({
     "& .MuiInputBase-root": {
@@ -127,7 +136,13 @@ const AnalyticTable: React.FC = () => {
 
   return (
     <div className="overflow-x-auto pt-10">
-      <div className="text-right mb-10">
+      <div className="text-right mb-10 flex items-center justify-end space-x-2">
+        <button
+          onClick={handleDecrementDate}
+          className="bg-purple-600 text-white px-2 py-2 rounded-full hover:bg-purple-700"
+        >
+          <MinusCircle className="w-7 h-7" />
+        </button>
         <LocalizationProvider dateAdapter={AdapterDayjs}>
           <StyledDatePicker
             value={selectedDate}
@@ -149,64 +164,74 @@ const AnalyticTable: React.FC = () => {
             PopperComponent={StyledPopper} // Apply custom Popper style
           />
         </LocalizationProvider>
+        <button
+          onClick={handleIncrementDate}
+          className="bg-purple-600 text-white px-2 py-2 rounded-full hover:bg-purple-700"
+        >
+          <PlusCircle className="w-7 h-7" />
+        </button>
       </div>
 
-      {isLoading ? (
-        <p className="text-center text-white">Loading...</p>
-      ) : error ? (
-        <p className="text-center text-red-500">Error: {error.message}</p>
-      ) : (
-        <table className="min-w-full border bg-opacity-40 backdrop-blur-md rounded-md border-purple-600">
-          <thead className="bg-purple-600 text-white">
+      <table className="min-w-full border bg-opacity-40 backdrop-blur-md rounded-md border-purple-600">
+        <thead className="bg-purple-600 text-white">
+          <tr>
+            <th className="p-3 border-r border-purple-500 text-center">Username</th>
+            <th className="p-3 border-r border-purple-500 text-center">Amount</th>
+            <th className="p-3 border-r border-purple-500 text-center">Date</th>
+            <th className="p-3 border-r border-purple-500 text-center">Billing</th>
+          </tr>
+        </thead>
+        <tbody className="text-white">
+          {isLoading || error ? (
             <tr>
-              <th className="p-3 border-r border-purple-500 text-center">Username</th>
-              <th className="p-3 border-r border-purple-500 text-center">Amount</th>
-              <th className="p-3 border-r border-purple-500 text-center">Date</th>
-              <th className="p-3 border-r border-purple-500 text-center">Billing</th>
+              <td colSpan={4} className="p-3 text-center text-gray-400">
+                {isLoading ? (
+                  <p className="text-center text-white">Loading...</p>
+                ) : (
+                  <p className="text-center text-red-500">Error: {error?.message}</p>
+                )}
+              </td>
             </tr>
-          </thead>
-          <tbody className="text-white">
-            {filteredData && filteredData.length > 0 ? (
-              filteredData.map((entry: TableEntry) => (
-                <tr key={entry.user_id}>
-                  <td className="p-3 border-r border-b border-purple-300 text-center">
-                    {entry.username}
-                  </td>
-                  <td className="p-3 border-r border-b border-purple-300 text-center">
-                    ${entry.amount?.toFixed(2) || " NA"}
-                  </td>
-                  <td className="p-3 border-r border-b border-purple-300 text-center">
-                    {entry.date}
-                  </td>
-                  <td className="p-3 border-r border-b border-purple-300 text-center">
-                    <label className="relative inline-flex items-center justify-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={checkedItems.has(entry.user_id)}
-                        onChange={() => handleCheckboxChange(entry.user_id)}
-                        className="peer hidden"
+          ) : filteredData && filteredData.length > 0 ? (
+            filteredData.map((entry: TableEntry) => (
+              <tr key={entry.user_id}>
+                <td className="p-3 border-r border-b border-purple-300 text-center">
+                  {entry.username}
+                </td>
+                <td className="p-3 border-r border-b border-purple-300 text-center">
+                  ${entry.amount?.toFixed(2) || " NA"}
+                </td>
+                <td className="p-3 border-r border-b border-purple-300 text-center">
+                  {entry.date}
+                </td>
+                <td className="p-3 border-r border-b border-purple-300 text-center">
+                  <label className="relative inline-flex items-center justify-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={checkedItems.has(entry.user_id)}
+                      onChange={() => handleCheckboxChange(entry.user_id)}
+                      className="peer hidden"
+                    />
+                    <span className="w-8 h-8 rounded-full border-2 border-gray-500 flex items-center justify-center transition-all duration-300 peer-checked:bg-purple-600 peer-checked:border-purple-600">
+                      <CheckIcon
+                        className={`text-white text-xl transition-all duration-200 transform ${
+                          checkedItems.has(entry.user_id) ? "opacity-100 scale-100" : "opacity-0 scale-0"
+                        }`}
                       />
-                      <span className="w-8 h-8 rounded-full border-2 border-gray-500 flex items-center justify-center transition-all duration-300 peer-checked:bg-purple-600 peer-checked:border-purple-600">
-                        <CheckIcon
-                          className={`text-white text-xl transition-all duration-200 transform ${
-                            checkedItems.has(entry.user_id) ? "opacity-100 scale-100" : "opacity-0 scale-0"
-                          }`}
-                        />
-                      </span>
-                    </label>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={4} className="p-3 text-center text-gray-400">
-                  No entries found.
+                    </span>
+                  </label>
                 </td>
               </tr>
-            )}
-          </tbody>
-        </table>
-      )}
+            ))
+          ) : (
+            <tr>
+              <td colSpan={4} className="p-3 text-center text-gray-400">
+                No entries found.
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
 
       <div className="pt-4 text-center text-white">
         {allChecked ? (

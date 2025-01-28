@@ -106,7 +106,7 @@ const AnalyticsPage = () => {
             
         </div>
         <div className="mt-12">
-          <h2 className="text-center font-semibold mb-6 font-heading text-purple-400 text-4xl">User Analytics Table</h2>
+          <h2 className="text-center font-semibold mb-6 font-heading text-purple-400 text-4xl">Billing Table</h2>
           <AnalyticTable />
         </div>
       </div>
