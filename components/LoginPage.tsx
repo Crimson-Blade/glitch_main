@@ -6,11 +6,13 @@ import Image from 'next/image';
 import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined';
 import PhoneOutlinedIcon from '@mui/icons-material/PhoneOutlined';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
-import { Button } from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, IconButton } from '@mui/material';
 import Snackbar from '@mui/material/Snackbar'; // Import Snackbar
+import AddIcon from '@mui/icons-material/Add'; // Import Add icon
+import EditIcon from '@mui/icons-material/Edit'; // Import Edit icon
+import DeleteIcon from '@mui/icons-material/Delete'; // Import Delete icon
 import Link from 'next/link';
 import { format } from 'date-fns';
-
 
 const Home = () => {
   const [name, setName] = useState("");
@@ -18,9 +20,66 @@ const Home = () => {
   const [dateTime, setDateTime] = useState(format(new Date(), "yyyy-MM-dd'T'HH:mm")); // Set current date and time
   const [toastOpen, setToastOpen] = useState(false); // State for toast notification
   const [toastMessage, setToastMessage] = useState(""); // State for toast message
+  const [popupOpen, setPopupOpen] = useState(false); // State for popup
+  const [userName, setUserName] = useState(""); // State for user name input in popup
+  const [users, setUsers] = useState<string[]>([]); // State for added users
+  const [editIndex, setEditIndex] = useState<number | null>(null); // State for editing user
 
   const handleToastClose = () => {
     setToastOpen(false); // Function to close the toast
+  };
+
+  const handlePopupOpen = () => {
+    setPopupOpen(true); // Function to open the popup
+  };
+
+  const handlePopupClose = () => {
+    setPopupOpen(false); // Function to close the popup
+    setEditIndex(null); // Reset edit index
+    setUserName(""); // Reset user name input
+  };
+
+  const handleAddUser = () => {
+    if (userName.trim()) {
+      if (editIndex !== null) {
+        setUsers((prevUsers) => {
+          const updatedUsers = [...prevUsers];
+          updatedUsers[editIndex] = userName.trim();
+          return updatedUsers;
+        });
+        setEditIndex(null);
+      } else {
+        setUsers((prevUsers) => [...prevUsers, userName.trim()]);
+      }
+      setUserName("");
+    }
+  };
+
+  const handleEditUser = (index: number) => {
+    setEditIndex(index);
+  };
+
+  const handleDeleteUser = (index: number) => {
+    setUsers((prevUsers) => prevUsers.filter((_, i) => i !== index));
+  };
+
+  const handleUserNameChange = (index: number, newName: string) => {
+    setUsers((prevUsers) => {
+      const updatedUsers = [...prevUsers];
+      updatedUsers[index] = newName;
+      return updatedUsers;
+    });
+  };
+
+  const handleUserNameKeyPress = (index: number, event: React.KeyboardEvent) => {
+    if (event.key === 'Enter') {
+      setEditIndex(null);
+    }
+  };
+
+  const handlePopupSubmit = () => {
+    console.log("Added Users:", users);
+    handlePopupClose();
   };
 
   const handleSubmission = (e: React.FormEvent<HTMLFormElement>) => {
@@ -29,6 +88,7 @@ const Home = () => {
     console.log("Name:", name);
     console.log("Phone Number:", phoneNumber);
     console.log("Entry Time:", dateTime);
+    console.log("Users:", users);
 
     fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/registrations`, {
       method: "POST",
@@ -39,6 +99,7 @@ const Home = () => {
         name: name,
         phone_number: phoneNumber,
         entry_time: dateTime,
+        users: users,
       }),
     })
       .then((response) => response.json())
@@ -149,12 +210,22 @@ const Home = () => {
                   </label>
                 </div>
 
-                <button
-                  type="submit"
-                  className="w-full py-2 px-4 bg-purple-500 text-white font-semibold rounded-md shadow-sm hover:bg-purple-600"
-                >
-                  Submit
-                </button>
+                <div className="flex space-x-4 mb-4">
+                  <Button
+                    variant="outlined"
+                    color="primary"
+                    onClick={handlePopupOpen}
+                    className="w-full border-purple-500 text-white font-semibold rounded-md shadow-sm hover:bg-[#ffffff46]"
+                  >
+                    Add Users
+                  </Button>
+                  <button
+                    type="submit"
+                    className="w-full py-2 px-4 bg-purple-500 text-white font-semibold rounded-md shadow-sm hover:bg-purple-600"
+                  >
+                    Submit
+                  </button>
+                </div>
               </form>
             </div>
 
@@ -171,6 +242,64 @@ const Home = () => {
             </div>
           </div>
         </div>
+
+        {/* Popup for adding users */}
+        <Dialog open={popupOpen} onClose={handlePopupClose} maxWidth="md" fullWidth>
+          <div className='hidden'>
+          <DialogTitle>Add User</DialogTitle>
+          </div>
+          
+          <h1 className='p-5 text-4xl text-center text-purple-900 font-bold'>Add User</h1>
+          <DialogContent>
+            <div className="flex items-center mb-4 overflow-visible">
+              <TextField
+                label="User Name"
+                value={userName}
+                onChange={(e) => setUserName(e.target.value)}
+                fullWidth
+              />
+              <IconButton onClick={handleAddUser} color="primary" className="bg-purple-500 text-white hover:bg-purple-600 rounded-full ml-2">
+                <AddIcon />
+              </IconButton>
+            </div>
+            <div>
+              {users.map((user, index) => (
+                <div key={index} className="mb-2 flex items-center justify-around gap-3">
+                  {editIndex === index ? (
+                    <TextField
+                      value={user}
+                      onChange={(e) => handleUserNameChange(index, e.target.value)}
+                      onKeyPress={(e) => handleUserNameKeyPress(index, e)}
+                      fullWidth
+                    />
+                  ) : (
+                    <span className="font-semibold text-center">{user}</span>
+                  )}
+                  <div className="flex space-x-2">
+                    <IconButton onClick={() => handleEditUser(index)} color="primary" className="bg-blue-500 text-white hover:bg-blue-600 rounded-full">
+                      <EditIcon />
+                    </IconButton>
+                    <IconButton onClick={() => handleDeleteUser(index)} color="primary" className="bg-red-500 text-white hover:bg-red-600 rounded-full">
+                      <DeleteIcon />
+                    </IconButton>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </DialogContent>
+          <DialogActions>
+            <button onClick={handlePopupClose} 
+            className="py-2 px-4 bg-white text-purple-500 border border-purple-500 font-semibold rounded-md shadow-sm hover:bg-purple-100 w-[150px]">
+              Close
+            </button>
+            <button
+              onClick={handlePopupSubmit}
+              className="py-2 px-4 bg-purple-500 text-white font-semibold rounded-md shadow-sm hover:bg-purple-600 w-[150px]"
+            >
+              Submit
+            </button>
+          </DialogActions>
+        </Dialog>
 
         {/* Toast Notification */}
         <Snackbar

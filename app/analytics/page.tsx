@@ -35,7 +35,7 @@ const AnalyticsPage = () => {
   };  
 
   return (
-    <div className="relative min-h-screen bg-fixed bg-center bg-no-repeat bg-cover" style={{ backgroundImage: "url('/images/bg.jpg')" }}>
+    <div className="p-10 relative min-h-screen bg-fixed bg-center bg-no-repeat bg-cover" style={{ backgroundImage: "url('/images/bg.jpg')" }}>
       <div className="container mx-auto pb-12">
         <div className="flex justify-between items-center py-10 px-20">
           <h1 className="font-heading text-purple-400 text-5xl">Entry</h1>

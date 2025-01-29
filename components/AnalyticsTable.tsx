@@ -2,11 +2,11 @@ import React, { useState, useEffect, useMemo } from "react";
 import CheckIcon from "@mui/icons-material/Check";
 import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 import { TextField, Popper, InputAdornment } from "@mui/material";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { styled } from "@mui/material/styles";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday"; // Calendar icon
-import dayjs, { Dayjs } from "dayjs"; // Import Dayjs
+import { format, isSameDay, addDays, subDays } from "date-fns"; // Import date-fns
 import { useDailyBillsData, updateBillVerification } from "@/lib/handlers";
 import { MinusCircle, PlusCircle } from "lucide-react";
 
@@ -21,10 +21,10 @@ interface TableEntry {
 const AnalyticTable: React.FC = () => {
   const [checkedItems, setCheckedItems] = useState<Set<number>>(new Set());
   const [allChecked, setAllChecked] = useState(false);
-  const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null); // Using Dayjs for date
+  const [selectedDate, setSelectedDate] = useState<Date | null>(null); // Using Date for date
 
   // Fetch data using useDailyBillsData
-  const defaultDate = useMemo(() => selectedDate?.toDate() || new Date(), [selectedDate]);
+  const defaultDate = useMemo(() => selectedDate || new Date(), [selectedDate]);
   const { data, isLoading, error } = useDailyBillsData(defaultDate);
 
   useEffect(() => {
@@ -32,7 +32,6 @@ const AnalyticTable: React.FC = () => {
   }, [checkedItems, data?.length]);
 
   useEffect(() => {
-    
     if (data) {
       const verifiedItems: Set<number> = new Set(data.filter((entry: TableEntry) => entry.bill_verified).map((entry: TableEntry) => entry.user_id));
       setCheckedItems(verifiedItems);
@@ -41,8 +40,8 @@ const AnalyticTable: React.FC = () => {
 
   const filteredData = selectedDate
     ? data?.filter((entry: TableEntry) => {
-        const entryDate = dayjs(entry.date); // Convert string date to Dayjs
-        return entryDate.isSame(selectedDate, "day");
+        const entryDate = new Date(entry.date); // Convert string date to Date
+        return isSameDay(entryDate, selectedDate);
       })
     : data;
 
@@ -75,11 +74,11 @@ const AnalyticTable: React.FC = () => {
   };
 
   const handleIncrementDate = () => {
-    setSelectedDate((current) => (current ? current.add(1, "day") : dayjs().add(1, "day")));
+    setSelectedDate((current) => (current ? addDays(current, 1) : addDays(new Date(), 1)));
   };
 
   const handleDecrementDate = () => {
-    setSelectedDate((current) => (current ? current.subtract(1, "day") : dayjs().subtract(1, "day")));
+    setSelectedDate((current) => (current ? subDays(current, 1) : subDays(new Date(), 1)));
   };
 
   // Custom styling for the TextField
@@ -143,25 +142,27 @@ const AnalyticTable: React.FC = () => {
         >
           <MinusCircle className="w-7 h-7" />
         </button>
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
           <StyledDatePicker
             value={selectedDate}
-            onChange={(newDate: Dayjs | null) => setSelectedDate(newDate)} // Update to Dayjs type
-            renderInput={(params) => (
-              <StyledTextField
-                {...params}
-                label="Select Date"
-                InputProps={{
-                  ...params.InputProps,
-                  endAdornment: (
-                    <InputAdornment position="end" sx={{ paddingRight: "10px" }}>
-                      <CalendarTodayIcon style={{ color: "#3f0071" }} />
-                    </InputAdornment>
-                  ),
-                }}
-              />
-            )}
-            PopperComponent={StyledPopper} // Apply custom Popper style
+            onChange={(newDate: Date | null) => setSelectedDate(newDate)} // Update to Date type
+            renderInput={(params: any) => {
+              return (
+                <StyledTextField
+                  {...params}
+                  label="Select Date"
+                  InputProps={{
+                    ...params.InputProps,
+                    endAdornment: (
+                      <InputAdornment position="end" sx={{ paddingRight: "10px" }}>
+                        <CalendarTodayIcon style={{ color: "#3f0071" }} />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              );
+            }}
+            PopperComponent={(props: any) => <StyledPopper {...props} />} // Apply custom Popper style
           />
         </LocalizationProvider>
         <button
@@ -202,7 +203,7 @@ const AnalyticTable: React.FC = () => {
                   ${entry.amount?.toFixed(2) || " NA"}
                 </td>
                 <td className="p-3 border-r border-b border-purple-300 text-center">
-                  {entry.date}
+                  {format(new Date(entry.date), 'dd-MM-yyyy')}
                 </td>
                 <td className="p-3 border-r border-b border-purple-300 text-center">
                   <label className="relative inline-flex items-center justify-center cursor-pointer">
