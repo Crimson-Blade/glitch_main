@@ -9,6 +9,7 @@ import CalendarTodayIcon from "@mui/icons-material/CalendarToday"; // Calendar i
 import dayjs, { Dayjs } from "dayjs"; // Import Dayjs
 import { useDailyBillsData, updateBillVerification } from "@/lib/handlers";
 import { MinusCircle, PlusCircle } from "lucide-react";
+import { format } from "date-fns";
 
 interface TableEntry {
   user_id: number;
@@ -202,7 +203,7 @@ const AnalyticTable: React.FC = () => {
                   ${entry.amount?.toFixed(2) || " NA"}
                 </td>
                 <td className="p-3 border-r border-b border-purple-300 text-center">
-                  {entry.date}
+                  {format(entry.date, 'yyyy-MM-dd')}
                 </td>
                 <td className="p-3 border-r border-b border-purple-300 text-center">
                   <label className="relative inline-flex items-center justify-center cursor-pointer">
