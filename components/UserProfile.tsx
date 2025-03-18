@@ -5,6 +5,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import Link from 'next/link';
 import { getFormattedUTCDate } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
 
 interface UserProfileProps {
   uuid: string;
@@ -44,6 +45,8 @@ const UserProfile: React.FC<UserProfileProps> = ({ uuid }) => {
   const [showToast, setShowToast] = useState<boolean>(false); 
   const [overrideAmount, setOverrideAmount] = useState<number | null>(null);
   const [isBillOverridden, setIsBillOverridden] = useState<boolean>(false);
+  const [toastMessage, setToastMessage] = useState<string>('');
+  const [toastColor, setToastColor] = useState<string>('green');
 
   const loungeIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const consoleIntervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -54,6 +57,8 @@ const UserProfile: React.FC<UserProfileProps> = ({ uuid }) => {
     console: null,
     other: null,
   });
+
+  const router = useRouter();
 
   useEffect(() => {
     // Fetch user data
@@ -192,8 +197,10 @@ const UserProfile: React.FC<UserProfileProps> = ({ uuid }) => {
 
 
   const handleGenerateBillButton = async () => {
-    setShowToast(true); // Show toast notification
-    setTimeout(() => setShowToast(false), 3000); // Hide after 3 seconds
+    setToastMessage('Generating Bill...');
+    setToastColor('green');
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
 
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/billing/${uuid}/`, {
@@ -208,11 +215,17 @@ const UserProfile: React.FC<UserProfileProps> = ({ uuid }) => {
         stopTimerAndResetSystem('lounge');
         stopTimerAndResetSystem('console');
         stopTimerAndResetSystem('other');
+        setToastMessage('Bill generated successfully!');
+        setToastColor('green');
       } else {
         console.error('Failed to generate bill');
+        setToastMessage('Failed to generate bill.');
+        setToastColor('red');
       }
     } catch (error) {
       console.error('Error generating bill:', error);
+      setToastMessage('Error generating bill.');
+      setToastColor('red');
     }
   };
 
@@ -370,16 +383,27 @@ const UserProfile: React.FC<UserProfileProps> = ({ uuid }) => {
         if (endSessionResponse.ok) {
           const endSessionData = await endSessionResponse.json();
           console.log('Session ended:', endSessionData);
+          setToastMessage('Session ended successfully!');
+          setToastColor('green');
+          router.push('/dashboard');
           // Optionally, navigate back to the dashboard or disable further actions
         } else {
           console.error('Failed to end session');
+          setToastMessage('Failed to end session.');
+          setToastColor('red');
         }
       } else {
         console.error('Failed to finalize bill');
+        setToastMessage('Failed to finalize bill.');
+        setToastColor('red');
       }
     } catch (error) {
       console.error('Error ending session:', error);
+      setToastMessage('Error ending session.');
+      setToastColor('red');
     }
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
   };
 
   if (!user) {
@@ -627,8 +651,12 @@ const UserProfile: React.FC<UserProfileProps> = ({ uuid }) => {
 
 {/* Toast Notification */}
 {showToast && (
-  <div className="fixed left-1/2 transform -translate-x-1/2 w-[50%] bg-white text-black py-4 mt-5 px-6 rounded-lg shadow-lg border-l-8 border-green-600">
-    Your bill is being generated...
+  <div
+    className={`fixed left-1/2 transform -translate-x-1/2 w-[50%] bg-white text-black py-4 mt-5 px-6 rounded-lg shadow-lg border-l-8 ${
+      toastColor === 'green' ? 'border-green-600' : 'border-red-600'
+    }`}
+  >
+    {toastMessage}
   </div>
 )}
 

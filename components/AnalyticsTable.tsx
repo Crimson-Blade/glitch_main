@@ -203,7 +203,7 @@ const AnalyticTable: React.FC = () => {
                   ${entry.amount?.toFixed(2) || " NA"}
                 </td>
                 <td className="p-3 border-r border-b border-purple-300 text-center">
-                  {format(entry.date, 'yyyy-MM-dd')}
+                  {format(new Date(entry.date), 'yyyy-MM-dd')}
                 </td>
                 <td className="p-3 border-r border-b border-purple-300 text-center">
                   <label className="relative inline-flex items-center justify-center cursor-pointer">
