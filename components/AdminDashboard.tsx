@@ -4,10 +4,10 @@ import {
   Edit,
   Delete,
   Refresh,
-  PlusOne,
+  Add,
+  Analytics,
   SportsEsports,
   Fastfood,
-  Add,
   Remove,
 } from "@mui/icons-material";
 import {
@@ -221,15 +221,29 @@ const Dashboard = () => {
           Dashboard
         </h1>
 
-        <div className="flex justify-around gap-4 mb-14">
-          <Link href="/" className="flex items-center cursor-pointer bg-purple-600 text-white hover:bg-purple-700 py-1.5 px-4 text-sm rounded-md" passHref>
-            <Button
-            startIcon={<PlusOne />}
-            className="text-white"
-            >
-              ADD ENTRY
-            </Button>
-          </Link>
+        <div className="flex justify-between gap-4 mb-14">
+          <div className="flex justify-between gap-4 ">
+            <Link href="/" className="flex items-center cursor-pointer bg-purple-600 text-white hover:bg-purple-700 py-1.5 px-4 text-sm rounded-md" passHref>
+              <Button
+              startIcon={<Add />}
+              className="text-white"
+              >
+                ADD ENTRY
+              </Button>
+            </Link>
+
+            <Link href="/analytics" className="flex items-center cursor-pointer bg-purple-600 text-white hover:bg-purple-700 py-1.5 px-4 text-sm rounded-md" passHref>
+              <Button
+              startIcon={<Analytics />}
+              className="text-white"
+              >
+                ANALYTICS
+              </Button>
+            </Link>
+          </div>
+          
+
+          
           
           {/* <Link href="/" className="flex items-center cursor-pointer bg-purple-600 text-white hover:bg-purple-700 py-1.5 px-4 text-sm rounded-md" passHref>
             <ButtonBase
@@ -243,8 +257,8 @@ const Dashboard = () => {
           >
             Edit User
           </Button> */}
-
-          {/* Refresh Button */}
+          {/* TODO : Add Search Bar functionality */}
+          {/* Search Bar */}
           <div className="flex items-center border-2 border-purple-600 rounded-md bg-transparent overflow-hidden">
             <TextField
               variant="outlined"

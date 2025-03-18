@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { Line, Pie } from 'react-chartjs-2';
-import { Chart as ChartJS, LineElement, CategoryScale, LinearScale, PointElement, ArcElement, Tooltip, Legend } from 'chart.js';
+import { Chart as ChartJS, LineElement, CategoryScale, LinearScale, PointElement, ArcElement, Tooltip, Legend, Filler } from 'chart.js';
 import 'tailwindcss/tailwind.css';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { Button } from '@mui/material';
@@ -10,8 +10,9 @@ import Link from 'next/link';
 import { useRegistrationData } from '@/lib/handlers';
 import { start } from 'repl';
 import { ActiveInactiveUsers, AverageSessionDuration, Income, Registrations, TimeRangeType } from '@/components/charts';
+import AnalyticTable from '@/components/AnalyticsTable';
 
-ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement, ArcElement, Tooltip, Legend);
+ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement, ArcElement, Tooltip, Legend, Filler);
 
 
 const AnalyticsPage = () => {
@@ -31,12 +32,10 @@ const AnalyticsPage = () => {
 
   const handleTimeRangeChange = (chartType: string, range: string) => {
     setTimeRange((prev) => ({ ...prev, [chartType]: range }));
-  };
-
-  
+  };  
 
   return (
-    <div className="relative min-h-screen bg-fixed bg-center bg-no-repeat bg-cover" style={{ backgroundImage: "url('/images/bg.jpg')" }}>
+    <div className="p-10 relative min-h-screen bg-fixed bg-center bg-no-repeat bg-cover" style={{ backgroundImage: "url('/images/bg.jpg')" }}>
       <div className="container mx-auto pb-12">
         <div className="flex justify-between items-center py-10 px-20">
           <h1 className="font-heading text-purple-400 text-5xl">Entry</h1>
@@ -105,6 +104,10 @@ const AnalyticsPage = () => {
             handleTimeRangeChangeProp={(range: string) => handleTimeRangeChange('income', range)}
           />
             
+        </div>
+        <div className="mt-12">
+          <h2 className="text-center font-semibold mb-6 font-heading text-purple-400 text-4xl">Billing Table</h2>
+          <AnalyticTable />
         </div>
       </div>
     </div>
